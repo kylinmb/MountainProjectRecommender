@@ -17,4 +17,4 @@ def get_users_climbs(path_to_user_ids):
     return users_climbs.fillna(0)
 
 
-test = get_users_climbs(path_to_user_ids='user_ids/UserIDsBoulder.csv')
+test = get_users_climbs(path_to_user_ids='user_ids/ExampleID.csv')
