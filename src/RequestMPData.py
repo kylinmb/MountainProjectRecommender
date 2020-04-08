@@ -8,7 +8,7 @@ import requests
 from requests.exceptions import RequestException
 
 base_url = 'https://www.mountainproject.com/data/'
-key = '<SET YOUR KEY HERE>'
+key = '200233635-c045751b55735ee4db13f7fa069ea6d9'
 
 
 def get_user(user_id):

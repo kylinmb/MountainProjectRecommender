@@ -47,5 +47,3 @@ def get_users_climbs_binary(path_to_user_ids):
         users_climbs = pd.concat([users_climbs, single_user_climb], sort=False, ignore_index=True)
     return users_climbs.fillna(0)
 
-
-test = get_users_climbs_binary(path_to_user_ids='user_ids/ExampleID.csv')
