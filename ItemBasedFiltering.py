@@ -17,35 +17,6 @@ TODO:
 '''
 
 #%%
-# path = './user_ids/uids.csv'
-# star_data = gud.get_users_climbs(path)
-
-# # %%
-# route_data = star_data.T  
-# rd = route_data.drop(labels='user_id', axis=0)
-
-# #%%
-# rd_cs = cosine_similarity(rd)
-# rd_cs.shape
-# uitems = star_data.set_index('user_id')
-
-
-#%%
-from scipy.stats import pearsonr
-#pearsonr = numba.njit(pearsonr)
-#@numba.jit(nopython=True)
-def calc_pearson(item_users):
-    n_items = len(item_users)
-    out = np.array([[
-       pearsonr(item_users[i],item_users[j])[0] for j in range(n_items)] for i in range(n_items)])
-    return out
-
-# ex = np.array([[1,2,3,4],[4,3,2,1],[1,2,1,4]],dtype=np.float_)
-# cp = calc_pearson(ex)
-# rd_ps = calc_pearson(rd.values)
-# print(rd_ps.shape)
-
-#%%
 def get_similar_routes(route_num,route_data,sims):
     rvec = route_data.iloc[route_num]
     sim_routes = sims[route_num]
@@ -72,7 +43,10 @@ def rec_climb_for_user(user_routes, user_id, route_users, sims, include_climbed_
         # if they actually did it
         if rating >= 1.0:
             # get the routes similar to that one
-            sim_routes = get_similar_routes(i,rd,rd_cs)
+            sim_routes = get_similar_routes(
+                i,
+                route_users,
+                sims)
             # add up all the times we saw the routes
             for route, sim in sim_routes:
                 recs[route] += sim
@@ -87,5 +61,17 @@ def rec_climb_for_user(user_routes, user_id, route_users, sims, include_climbed_
         return [(route, sim) for route, sim in recs 
             if route not in user_climbs[user_climbs >= 1.0].index ]
     
+#%%
+from scipy.stats import pearsonr
+#pearsonr = numba.njit(pearsonr)
+#@numba.jit(nopython=True)
+def calc_pearson(item_users):
+    n_items = len(item_users)
+    out = np.array([[
+       pearsonr(item_users[i],item_users[j])[0] for j in range(n_items)] for i in range(n_items)])
+    return out
 
-# %%
+# ex = np.array([[1,2,3,4],[4,3,2,1],[1,2,1,4]],dtype=np.float_)
+# cp = calc_pearson(ex)
+# rd_ps = calc_pearson(rd.values)
+# print(rd_ps.shape)
