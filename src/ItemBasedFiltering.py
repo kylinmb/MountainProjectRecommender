@@ -1,8 +1,8 @@
-#%%
+
 from src import RequestMPData as mp
 from src import GetUserClimbData as gud
-from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from scipy.stats import pearsonr
 from collections import defaultdict
 # import numba
 # import numba-scipy
@@ -16,7 +16,6 @@ TODO:
 (3) use features returned from get_routes
 '''
 
-#%%
 def get_similar_routes(route_num,route_data,sims):
     rvec = route_data.iloc[route_num]
     sim_routes = sims[route_num]
@@ -27,7 +26,7 @@ def get_similar_routes(route_num,route_data,sims):
                 key = lambda x: x[1],
                 reverse = True)
 
-#%%
+
 def rec_climb_for_user(user_routes, user_id, route_users, sims, include_climbed_routes=False):
     '''
         Example
@@ -61,8 +60,6 @@ def rec_climb_for_user(user_routes, user_id, route_users, sims, include_climbed_
         return [(route, sim) for route, sim in recs 
             if route not in user_climbs[user_climbs >= 1.0].index ]
     
-#%%
-from scipy.stats import pearsonr
 #pearsonr = numba.njit(pearsonr)
 #@numba.jit(nopython=True)
 def calc_pearson(item_users):
