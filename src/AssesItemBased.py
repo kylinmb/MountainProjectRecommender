@@ -68,13 +68,24 @@ def test_folds(user_data,sim,folds):
         export_data(judge,base,i+1)
 
 def run_eval(folds):
+    raw = []
+    metrics = []
     for i in range(folds):
         cmd = 'galago eval --judgments=data/judge_fold_{}.txt --baseline=data/base_fold_{}.txt --metrics+MAP --metrics+NDCG10'.format(i+1,i+1)
         stream = os.popen(cmd)
         out = stream.read()
-        print(out)
-        break
-
+        raw.append(
+            [(l.split(' ')[0],l.split(' ')[-1]) for l in out.split('\n')[:-1]])
+    names = np.array(raw).T[0]
+    vals = np.array(raw).T[1]
+    for i,metric in enumerate(names):
+        flts = vals[i].astype(float)
+        print(
+            metric[0],'on',
+            folds,'folds',
+            round( np.mean(flts),3),'+/-',round(np.std(flts),3))
+        metrics.append((metric[0],flts))
+    return metrics
     
 
 ##################
