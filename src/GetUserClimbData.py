@@ -26,6 +26,33 @@ def get_users_climbs(path_to_user_ids):
     return users_climbs.fillna(0)
 
 
+def get_avg_star_rating(route_id, route_dictionary):
+    print('Getting star rating.')
+    rating = route_dictionary.get(route_id, -1)
+    if rating == -1:
+        routes = mp.get_routes([route_id])
+        rating = routes['routes'][0]['stars']
+        route_dictionary[route_id] = rating
+    return rating
+
+
+def get_users_climbs_average(path_to_user_ids):
+    user_ids = pd.read_csv(path_to_user_ids, sep='\n', header=None)
+    users_climbs = pd.DataFrame()
+    route_dictionary = {}
+    for index, user_id in user_ids.iterrows():
+        single_user_climb = pd.DataFrame()
+        single_user_climb['user_id'] = user_id
+        users_ticks = mp.get_ticks(user_id[0])['ticks']
+        for t in users_ticks:
+            route_id = t['routeId']
+            user_stars = t['userStars']
+            single_user_climb[route_id] = user_stars if not user_stars == -1\
+                else get_avg_star_rating(route_id, route_dictionary)
+        users_climbs = pd.concat([users_climbs, single_user_climb], sort=False, ignore_index=True)
+    return users_climbs.fillna(0)
+
+
 def get_users_climbs_binary(path_to_user_ids):
     """
     Creates data frame where rows are users and columns are climbs.
