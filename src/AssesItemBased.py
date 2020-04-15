@@ -44,9 +44,16 @@ def format_for_galago(user_recs,user_real):
 
     return out_judge, out_base
 
-def export_data(judge,base,fold):
-    np.savetxt('data/base_fold_{}.txt'.format(fold),base, delimiter='\n',fmt='%s')
-    np.savetxt('data/judge_fold_{}.txt'.format(fold),judge, delimiter='\n',fmt='%s')
+def export_data(name,judge,base,fold):
+    base_path = 'data/{}base_fold_{}.txt'.format(name,fold)
+    judge_path = 'data/{}judge_fold_{}.txt'.format(name,fold)
+    try:
+        os.remove(base_path)
+        os.remove(judge_path)
+    except:
+        pass
+    np.savetxt(base_path,base, delimiter='\n',fmt='%s')
+    np.savetxt(judge_path,judge, delimiter='\n',fmt='%s')
 
 def test_folds(user_data,sim,folds):
     hold_out_size = floor(len(user_data)/folds)
@@ -65,13 +72,13 @@ def test_folds(user_data,sim,folds):
                 sim)
 
         judge, base = format_for_galago(recs,held_out_routes)
-        export_data(judge,base,i+1)
+        export_data('',judge,base,i+1)
 
-def run_eval(folds):
+def run_eval(name,folds):
     raw = []
-    metrics = []
+    metrics = [[],[]]
     for i in range(folds):
-        cmd = 'galago eval --judgments=data/judge_fold_{}.txt --baseline=data/base_fold_{}.txt --metrics+MAP --metrics+NDCG10'.format(i+1,i+1)
+        cmd = 'galago eval --judgments=data/{}judge_fold_{}.txt --baseline=data/{}base_fold_{}.txt --metrics+MAP --metrics+NDCG10'.format(name,i+1,name,i+1)
         stream = os.popen(cmd)
         out = stream.read()
         raw.append(
@@ -80,11 +87,14 @@ def run_eval(folds):
     vals = np.array(raw).T[1]
     for i,metric in enumerate(names):
         flts = vals[i].astype(float)
-        print(
-            metric[0],'on',
-            folds,'folds',
-            round( np.mean(flts),3),'+/-',round(np.std(flts),3))
-        metrics.append((metric[0],flts))
+        metrics[0].append('Mean {}'.format(metric[0]))
+        metrics[0].append('Std {}'.format(metric[0]))
+        metrics[1].append(round(np.mean(flts),5))
+        metrics[1].append(round(np.std(flts),5))
+        # print(
+        #     metric[0],'on',
+        #     folds,'folds',
+        #     round( np.mean(flts),4),'+/-',round(np.std(flts),4))
     return metrics
     
 
