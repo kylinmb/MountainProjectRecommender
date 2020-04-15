@@ -9,10 +9,6 @@ user_rating_df_with_id = gud.get_users_climbs(path)
 user_rating_df = user_rating_df_with_id.drop(labels='user_id', axis=1)
 user_rating_np = user_rating_df.to_numpy()
 
-# Calculate similarity, determine nearest neighbors, make single prediction
-print('Calculating Similarity and Nearest Neighbors')
-pearson_similarity = cf.pairwise_pearson_correlation(user_rating_np)
-nearest_neighbors = cf.find_k_similar_neighbors(5, pearson_similarity)
 
 # Calculate and plot MAE and RMSE for different values of k
 mae_per_k = []

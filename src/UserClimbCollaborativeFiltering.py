@@ -67,7 +67,7 @@ def predicted_rating(climb, user, ratings, nearest_neighbors, similarities):
     return 0.0 if denominator == 0 else user_mean + numerator / denominator
 
 
-def hold_out_evaluation(list_of_users, ground_truth_ranking, percent_to_hold_out, k):
+def hold_out_evaluation(list_of_users, ground_truth_ranking, percent_to_hold_out, k, similarity=pairwise_pearson_correlation):
     """
     This method will hold out a percent of the climbs for each of the users listed and
     predict the rating for each of the held out climbs and compare those to the known
@@ -91,8 +91,8 @@ def hold_out_evaluation(list_of_users, ground_truth_ranking, percent_to_hold_out
             hold_out_rating.iloc[u].loc[c] = 0
 
     # now calculate predictions using hold out set
-    similarity = pairwise_pearson_correlation(hold_out_rating.to_numpy())
-    nearest_neighbors = find_k_similar_neighbors(k, similarity)
+    sim = similarity(hold_out_rating.to_numpy())
+    nearest_neighbors = find_k_similar_neighbors(k, sim)
 
     # now for each user calculate ap
     mean_squared_errors = []
@@ -101,14 +101,14 @@ def hold_out_evaluation(list_of_users, ground_truth_ranking, percent_to_hold_out
         predictions = []
         ground_truths = []
         for climb in user_climbs:
-            predictions.append(predicted_rating(climb, user_index, hold_out_rating, nearest_neighbors, similarity))
+            predictions.append(predicted_rating(climb, user_index, hold_out_rating, nearest_neighbors, sim))
             ground_truths.append(ground_truth_ranking.iloc[user_index].loc[climb])
         mean_squared_errors.append(mean_squared_error(ground_truths, predictions))
         mean_absolute_errors.append(mean_absolute_error(ground_truths, predictions))
     return mean_absolute_errors, np.sqrt(mean_squared_errors)
 
 
-def eval_five_fold(k, rating_df):
+def eval_five_fold(k, rating_df, similarity=pairwise_pearson_correlation):
     """
     Evaluate five folds of hold out data
     :param k: number of nearest neighbors
@@ -124,7 +124,7 @@ def eval_five_fold(k, rating_df):
     maes = []
     mses = []
     for fold in folds:
-        mae, mse = hold_out_evaluation(fold, rating_df, 0.20, k)
+        mae, mse = hold_out_evaluation(fold, rating_df, 0.20, k, similarity)
         maes.append(np.mean(mae))
         mses.append(np.mean(mse))
     return np.mean(maes), np.mean(mses)
