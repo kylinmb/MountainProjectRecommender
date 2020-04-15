@@ -1,0 +1,2 @@
+Mean MAP,Std MAP,Mean NDCG10,Std NDCG10,Mean num_rel,Std num_rel,Mean num_rel_ret,Std num_rel_ret
+0.7334,0.24317,0.13816,0.04693,93.0,7.45654,24.2,4.87442

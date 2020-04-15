@@ -27,7 +27,7 @@ def get_similar_routes(route_num,route_data,sims):
                 reverse = True)
 
 
-def rec_climb_for_user(user_routes, user_id, route_users, sims, include_climbed_routes=False):
+def rec_climb_for_user(user_routes, user_id, route_users, sims, cutoff=1000, include_climbed_routes=False):
     '''
         Example
         recs_112233654 = rec_climb_for_user(uitems,112233654,rd,rd_cs)
@@ -55,10 +55,10 @@ def rec_climb_for_user(user_routes, user_id, route_users, sims, include_climbed_
         reverse = True
     )
     if include_climbed_routes:
-        return recs
+        return recs[:cutoff]
     else:
         return [(route, sim) for route, sim in recs 
-            if route not in user_climbs[user_climbs >= 1.0].index ]
+            if route not in user_climbs[user_climbs >= 1.0].index ][:cutoff]
     
 #pearsonr = numba.njit(pearsonr)
 #@numba.jit(nopython=True)
