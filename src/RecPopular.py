@@ -53,14 +53,11 @@ def paralell_pop(user_data,sws,vws,n_process=6):
     metric_array = []
     for sw in sws:
         for vw in vws:
-            # data_array.append((user_data,sv,vw))
             metric_array.append(
                 (run_pop(user_data,sw,vw),
                 sw,
                 vw)
             )
-    # with Pool(n_process):
-    #     metric_array = starmap(run_pop,data_array)
     mf1 = pd.DataFrame()
     for metric in metric_array:
         mf = pd.DataFrame([metric[0][1]],columns=metric[0][0])

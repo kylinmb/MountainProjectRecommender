@@ -55,7 +55,7 @@ def export_data(name,judge,base,fold):
     np.savetxt(base_path,base, delimiter='\n',fmt='%s')
     np.savetxt(judge_path,judge, delimiter='\n',fmt='%s')
 
-def test_folds(user_data,sim,folds):
+def test_folds(user_data,sim,folds,name):
     hold_out_size = floor(len(user_data)/folds)
     for i in range(hold_out_size - 1 ):
         test_split = user_data[ i*hold_out_size : (i+1)*hold_out_size ]
@@ -72,7 +72,7 @@ def test_folds(user_data,sim,folds):
                 sim)
 
         judge, base = format_for_galago(recs,held_out_routes)
-        export_data('',judge,base,i+1)
+        export_data(name,judge,base,i+1)
 
 def run_eval(name,folds):
     raw = []
