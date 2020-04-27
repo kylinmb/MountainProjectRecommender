@@ -27,7 +27,7 @@ def get_users_climbs(path_to_user_ids):
 
 
 def get_avg_star_rating(route_id, route_dictionary):
-    print('Getting star rating.')
+    # print('Getting star rating.')
     rating = route_dictionary.get(route_id, -1)
     if rating == -1:
         routes = mp.get_routes([route_id])

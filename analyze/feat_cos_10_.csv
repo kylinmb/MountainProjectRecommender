@@ -1,0 +1,2 @@
+mean_ndcg10,std_ndcg10,mean_ndcg,std_ndcg,mean_map,std_map,name
+0.02193,0.04386,0.01112,0.02224,0.02414,0.04828,feat_cos_10_

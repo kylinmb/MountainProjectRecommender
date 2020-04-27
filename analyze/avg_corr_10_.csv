@@ -1,0 +1,2 @@
+mean_ndcg10,std_ndcg10,mean_ndcg,std_ndcg,mean_map,std_map,name
+0.0,0.0,0.0,0.0,0.0,0.0,avg_corr_10_

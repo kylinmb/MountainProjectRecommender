@@ -5,21 +5,26 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from math import floor
 from scipy.stats import rankdata
+import pandas as pd
 import os
 
 def trim_routes(users,ratio=0.5):
     out = {}
-    for u in sorted(list(users.index)):
-        climbed = users.copy().loc[u][users.loc[u] >= 1]
+    for i,u in enumerate(list(users.index)):
+        all_climbs = list(users.iloc[i])
+        climbed = [ (i,rating) for i,rating in enumerate(all_climbs) if rating >= 1]
         np.random.seed(30)
-        random_climbs = np.random.choice(climbed.index, 
-            size=floor(len(climbed)*ratio)
+        random_idx = np.random.choice(list(range(len(climbed))),
+            size=floor(len(climbed)*ratio),
+            replace=False
         )
+        true_climbs = [climbed[i] for i in random_idx]
+        tc_idx = [tc[0] for tc in true_climbs]
         out[u] = sorted(
-            list(zip(random_climbs,users.loc[u][random_climbs])),
+            list(zip(users.iloc[i,tc_idx].index,users.iloc[i,tc_idx])),
             key = lambda x: x[1],
             reverse = True)
-        users.loc[u, random_climbs] = 0
+        users.iloc[i, tc_idx] = 0
     return out, users
 
 def get_predictions(user_data,test_users,route_data,sim,cutoff):
@@ -55,7 +60,7 @@ def export_data(name,judge,base,fold):
     np.savetxt(base_path,base, delimiter='\n',fmt='%s')
     np.savetxt(judge_path,judge, delimiter='\n',fmt='%s')
 
-def test_folds(user_data,sim,folds,name,cutoff):
+def test_folds(user_data,sim,folds,cutoff,name):
     hold_out_size = floor(len(user_data)/folds)
     for i in range(hold_out_size - 1 ):
         test_split = user_data[ i*hold_out_size : (i+1)*hold_out_size ]
@@ -79,7 +84,10 @@ def run_eval(name,folds):
     raw = []
     metrics = [[],[]]
     for i in range(folds):
-        cmd = 'galago eval --judgments=data/{}judge_fold_{}.txt --baseline=data/{}base_fold_{}.txt --metrics+MAP --metrics+NDCG10 --metrics+num_rel --metrics+num_rel_ret'.format(name,i+1,name,i+1)
+        cmd = '''
+        galago eval --judgments=data/{}judge_fold_{}.txt --baseline=data/{}base_fold_{}.txt \
+          --metrics+ndcg10 --metrics+ndcg --metrics+map 
+        '''.format(name,i+1,name,i+1)
         stream = os.popen(cmd)
         out = stream.read()
         raw.append(
@@ -88,11 +96,13 @@ def run_eval(name,folds):
     vals = np.array(raw).T[1]
     for i,metric in enumerate(names):
         flts = vals[i].astype(float)
-        metrics[0].append('Mean {}'.format(metric[0]))
-        metrics[0].append('Std {}'.format(metric[0]))
+        metrics[0].append('mean_{}'.format(metric[0]))
+        metrics[0].append('std_{}'.format(metric[0]))
         metrics[1].append(round(np.mean(flts),5))
         metrics[1].append(round(np.std(flts),5))
-    return metrics
+    metrics[0].append('name')
+    metrics[1].append(name)
+    return pd.DataFrame(data=[metrics[1]],columns=metrics[0])
     
 
 ##################

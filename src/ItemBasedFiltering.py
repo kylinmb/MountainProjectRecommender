@@ -4,17 +4,7 @@ from src import GetUserClimbData as gud
 import numpy as np
 from scipy.stats import pearsonr
 from collections import defaultdict
-# import numba
-# import numba-scipy
-# from pprint import pprint
-# pprint(mp.get_routes([112775509,112775510,112775511]))
 
-'''
-TODO: 
-(1) Get all routes initial group of uses have climbed
-(2) use get route by lat long to get more routes
-(3) use features returned from get_routes
-'''
 
 def get_similar_routes(route_num,route_data,sims):
     rvec = route_data.iloc[route_num]
@@ -50,25 +40,20 @@ def rec_climb_for_user(user_routes, user_id, route_users, sims, cutoff=1000, inc
             for route, sim in sim_routes:
                 recs[route] += sim
 
+    #recs = {route : val/10 for route, val in recs.items()}
     recs = sorted(recs.items(),
         key = lambda x: x[1],
         reverse = True
     )
     if include_climbed_routes:
-        return recs[:cutoff]
+        recs = recs[:cutoff]
     else:
-        return [(route, sim) for route, sim in recs 
+        recs = [(route, sim) for route, sim in recs 
             if route not in user_climbs[user_climbs >= 1.0].index ][:cutoff]
-    
-#pearsonr = numba.njit(pearsonr)
-#@numba.jit(nopython=True)
-def calc_pearson(item_users):
-    n_items = len(item_users)
-    out = np.array([[
-       pearsonr(item_users[i],item_users[j])[0] for j in range(n_items)] for i in range(n_items)])
-    return out
 
-# ex = np.array([[1,2,3,4],[4,3,2,1],[1,2,1,4]],dtype=np.float_)
-# cp = calc_pearson(ex)
-# rd_ps = calc_pearson(rd.values)
-# print(rd_ps.shape)
+    # rt = [val for key,val in recs.items()].sum()
+    # recs_normed = {route : val/rt for route, val in recs.items()}
+
+    return recs
+    
+
