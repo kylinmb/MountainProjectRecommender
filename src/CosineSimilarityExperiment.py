@@ -17,11 +17,11 @@ cosine_maes = []
 cosine_mses = []
 for i in range(0, 50):
     print('Comparison Number: ' + str(i))
-    pearson_mae, pearson_mse = cf.eval_five_fold(5, user_rating_df)
+    pearson_mae, pearson_mse = cf.eval_five_fold(29, user_rating_df)
     pearson_maes.append(pearson_mae)
     pearson_mses.append(pearson_mse)
 
-    cosine_mae, cosine_mse = cf.eval_five_fold(5, user_rating_df, cosine_similarity)
+    cosine_mae, cosine_mse = cf.eval_five_fold(29, user_rating_df, cosine_similarity)
     cosine_maes.append(cosine_mae)
     cosine_mses.append(cosine_mse)
 
@@ -30,5 +30,9 @@ avg_pearson_mse = np.mean(pearson_mses)
 
 avg_cosine_mae = np.mean(cosine_maes)
 avg_cosine_mse = np.mean(cosine_mses)
+
+# MAP and NDCG
+cf.eval_five_fold_ranking(29, user_rating_df, user_rating_df_with_id, '../galago/pearson_judgments.txt', '../galago/pearson_baseline.txt', 20)
+cf.eval_five_fold_ranking(29, user_rating_df, user_rating_df_with_id, '../galago/cosine_judgments.txt', '../galago/cosine_baseline.txt', 20, cosine_similarity)
 
 
